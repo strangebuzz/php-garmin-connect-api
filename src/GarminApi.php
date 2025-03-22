@@ -202,6 +202,36 @@ class GarminApi extends Server
     }
 
     /**
+     * get dailies summary.
+     *
+     * @param TokenCredentials $tokenCredentials
+     * @param array $params
+     * @return string json response
+     * @throws Exception
+     */
+    public function getDailiesSummary(TokenCredentials $tokenCredentials, array $params)
+    {
+        $client = $this->createHttpClient();
+        $query = http_build_query($params);
+        $query = 'dailies?'.$query;
+        $headers = $this->getHeaders($tokenCredentials, 'GET', self::USER_API_URL . $query);
+
+        try {
+            $response = $client->get(self::USER_API_URL . $query, [
+                'headers' => $headers,
+            ]);
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+            $body = $response->getBody();
+            $statusCode = $response->getStatusCode();
+            throw new \Exception(
+                "Received error [$body] with status code [$statusCode] when retrieving dailies summary."
+            );
+        }
+        return $response->getBody()->getContents();
+    }
+
+    /**
      * get manually activity summary
      *
      * @param TokenCredentials $tokenCredentials
